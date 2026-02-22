@@ -54,7 +54,6 @@ public class CardHolder : MonoBehaviour
         foreach (var card in cardsList)
         {
             card.transform.parent=null;
-            // card.transform.position+=transform.forward*2f;
             ConveyorController.Instance.RegisterCard(card);
             yield return new WaitForSeconds(0.15f);
             Debug.Log("Releasing " + card.color);

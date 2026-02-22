@@ -1,12 +1,20 @@
-using System.Text.RegularExpressions;
 using UnityEngine;
+using Dreamteck.Splines;
 
 public class Card : MonoBehaviour
 {
     [SerializeField] private MeshRenderer cardMeshRenderer;
     public CardColor color {get;private set;}
+    public SplineFollower follower;
 
     public bool OnBelt = true;
+    public double splinePercent;
+    public float splineDistance;
+    void Awake()
+    {
+        follower = GetComponent<SplineFollower>();
+        follower.applyDirectionRotation = true;
+    }
     public void Intialize(CardColor col,Material mat)
     {
         color = col;

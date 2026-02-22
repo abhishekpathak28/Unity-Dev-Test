@@ -9,50 +9,47 @@ public class MatchingCard : MonoBehaviour
     [SerializeField] private float YoffSet=0.02f;
     private int filled;
 
-    void Start()
-    {
-        Debug.Log("Slots count: " + landPos.Length);
-    }
     public bool CanFill(Card card)
     {
-        Debug.Log($"filled {filled} vs capacity {capacity}");
+        // Debug.Log($"filled {filled} vs capacity {capacity}");
         return card.color == cardHolderColor && filled <capacity;
     }
-public void AcceptCard(Card card)
-{
-    card.OnBelt = false;
-    int slotIndex = filled;
-    filled++;
-
-    Transform slot = landPos[slotIndex];
-    DOTween.Kill(card, true);
-    Sequence seq = DOTween.Sequence().SetId(card);
-
-    seq.AppendInterval(0.1f);
-
-    seq.Append(
-        card.transform
-            .DOJump(slot.position, 0.8f, 1, 0.32f)
-            .SetEase(Ease.OutQuad)
-            .SetId(card)
-    );
-
-    seq.Join(
-        card.transform
-            .DORotateQuaternion(slot.rotation, 0.32f)
-            .SetId(card)
-    );
-
-    seq.OnComplete(() =>
+    public void AcceptCard(Card card)
     {
-        card.transform.SetParent(slot);
-        card.transform.localPosition = Vector3.zero;
-        card.transform.localRotation = Quaternion.identity;
+        card.follower.enabled = false;
+        card.OnBelt = false;
+        int slotIndex = filled;
+        filled++;
 
-        if (filled >= capacity)
-            FilledCrate();
-    });
-}
+        Transform slot = landPos[slotIndex];
+        DOTween.Kill(card, true);
+        Sequence seq = DOTween.Sequence().SetId(card);
+
+        seq.AppendInterval(0.1f);
+
+        seq.Append(
+            card.transform
+                .DOJump(slot.position, 0.8f, 1, 0.32f)
+                .SetEase(Ease.OutQuad)
+                .SetId(card)
+        );
+
+        seq.Join(
+            card.transform
+                .DORotateQuaternion(slot.rotation, 0.32f)
+                .SetId(card)
+        );
+
+        seq.OnComplete(() =>
+        {
+            card.transform.SetParent(slot);
+            card.transform.localPosition = Vector3.zero;
+            card.transform.localRotation = Quaternion.identity;
+
+            if (filled >= capacity)
+                FilledCrate();
+        });
+    }
     private void FilledCrate()
     {
         Sequence seq = DOTween.Sequence();
