@@ -15,12 +15,9 @@ public class ConveyorController : MonoBehaviour
     [SerializeField] private float beltSpeed = 5f;
     [SerializeField] private float slotSpacing = 0.15f;
     [SerializeField] private float YoffSet = 0.15f;
-
-    private readonly List<Card> cardsOnBelt = new();
-
-    private float currentDistance;
+    [SerializeField] private double startSplinePercent = 0.0;
+    private Dictionary<Card, double> cardDistances = new Dictionary<Card, double>();
     private float splineLength;
-    private float startOffsetDistance;
 
     void Awake()
     {
@@ -39,54 +36,59 @@ public class ConveyorController : MonoBehaviour
         {
             splineLength =spline.CalculateLength();
             SplineSample sample = spline.Project(entryPoint.position);
-            startOffsetDistance = spline.CalculateLength(0.0,sample.percent);
         }
     }
     public void RegisterCard(Card card)
     {
-        StartCoroutine(EnterBelt(card));
+        // StartCoroutine(EnterBelt(card));
+        EnterBelt(card);
     }
 
-    private IEnumerator EnterBelt(Card card)
+        private void EnterBelt(Card card)
     {
-        card.transform.parent = null;
-        Vector3 start = card.transform.position;
-        Vector3 target = entryPoint.transform.position;
-        float t = 0f;
+        SplineSample startSample = spline.Evaluate(startSplinePercent);
+        Vector3 targetPos = startSample.position + (Vector3.up * YoffSet);
 
-        while (t < 1f)
+        Sequence seq = DOTween.Sequence();
+        seq.Append(card.transform.DOJump(targetPos, 5f, 1, 0.6f).SetEase(Ease.OutSine));
+        seq.Join(card.transform.DORotate(new Vector3(0, 180, 0), 0.6f, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuad));
+        seq.OnComplete(() =>
         {
-            t += Time.deltaTime * entrySpeed;
-            card.transform.position = Vector3.Lerp(start, target, t);
-            yield return null;
-        }
-
-        cardsOnBelt.Add(card);
+            double startDist = spline.CalculateLength(0.0, startSplinePercent);
+            cardDistances[card] = startDist;
+        });
     }
     void Update()
     {
-        if (spline == null || cardsOnBelt.Count == 0) return;
-        currentDistance -= beltSpeed * Time.deltaTime;
-        if (currentDistance < 0f)
-        {
-            currentDistance += splineLength;
-        }
+        if (spline == null || cardDistances.Count == 0) return;
+            List<Card> activeCards = new List<Card>(cardDistances.Keys);
 
-        currentDistance %= splineLength;
-        for(int i = 0; i < cardsOnBelt.Count; i++)
+        foreach (Card card in activeCards)
         {
-            if(!cardsOnBelt[i].OnBelt) continue;
-            float cardDistance= currentDistance +startOffsetDistance + (i*slotSpacing);
-            cardDistance %=splineLength;
-            double percent = spline.Travel(0.0,cardDistance);
+            if (!card.OnBelt) continue;
+            double dist = cardDistances[card];
+            dist -= beltSpeed * Time.deltaTime; 
+            if (dist < 0f)
+            {
+                dist += splineLength;
+            }
+            dist %= splineLength;
+
+            cardDistances[card] = dist;
+            double percent = spline.Travel(0.0, (float)dist);
             SplineSample sample = spline.Evaluate(percent);
-            Quaternion offset = Quaternion.Euler(0f,90f,0f);
+            
+            Quaternion offset = Quaternion.Euler(0f, 90f, 0f);
             Vector3 finalPosition = sample.position + (Vector3.up * YoffSet);
-            cardsOnBelt[i].transform.SetPositionAndRotation(finalPosition,sample.rotation*offset);
+            
+            card.transform.SetPositionAndRotation(finalPosition, sample.rotation * offset);
         }
     }
     public void RemoveFromBelt(Card card)
     {
-        cardsOnBelt.Remove(card);
+        if (cardDistances.ContainsKey(card))
+        {
+            cardDistances.Remove(card);
+        }
     }
 }

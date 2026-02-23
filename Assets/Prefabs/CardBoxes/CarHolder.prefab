@@ -135,7 +135,6 @@ GameObject:
   - component: {fileID: 8455093531919613560}
   - component: {fileID: 8031193037196163953}
   - component: {fileID: 7605225238651385336}
-  - component: {fileID: 6294604670195274951}
   - component: {fileID: 8895858508008088983}
   m_Layer: 0
   m_Name: CarHolder
@@ -218,27 +217,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6294604670195274951
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5918215850281562355}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 4, y: 1.5, z: 2}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8895858508008088983
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01852bb34bc70a74ea4b12aa04270703, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 6276992701632416789, guid: 2e2891d84b8a84c489671c0ed3a721eb, type: 3}
+  cardPrefab: {fileID: 5875215981465066037, guid: 94a82722ce8d4f74b9662b7a4b5b4d07, type: 3}
   spawnPoints:
   - {fileID: 7537042901006695636}
   - {fileID: 957432265814672320}
@@ -259,11 +237,12 @@ MonoBehaviour:
   - {fileID: 6782500568151784659}
   - {fileID: 2618244012960050938}
   - {fileID: 5585072918130142332}
-  holderColor: 0
   redMat: {fileID: 2100000, guid: 73fceada90b5cb943a4aae6f2d79793b, type: 2}
   blueMat: {fileID: 2100000, guid: 30190c569134f3d4893b770bc7d85acf, type: 2}
   greenMat: {fileID: 2100000, guid: d04fed1d840560447a8420322fe38efb, type: 2}
   yellowMat: {fileID: 2100000, guid: b10472eb91ec27c4abd13aacf1c02676, type: 2}
+  holderMeshRenderer: {fileID: 7605225238651385336}
+  spawnIndex: 0
 --- !u!1 &8207305465095726925
 GameObject:
   m_ObjectHideFlags: 0

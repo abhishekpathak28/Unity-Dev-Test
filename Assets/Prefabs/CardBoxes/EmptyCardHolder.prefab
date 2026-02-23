@@ -237,8 +237,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4, y: 1.5, z: 2}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 8.980294, y: 2.3742006, z: 2}
+  m_Center: {x: -0.47683668, y: 0.43710017, z: 0}
 --- !u!114 &1536393129656151877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +251,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a89347cf5a6db7a4db03767615042d97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cardHolderColor: 0
   sparkle: {fileID: 0}
   landPos:
   - {fileID: 7537042901006695636}
@@ -261,6 +260,11 @@ MonoBehaviour:
   - {fileID: 2618244012960050938}
   - {fileID: 5585072918130142332}
   YoffSet: 0.02
+  crateRenderer: {fileID: 7605225238651385336}
+  redMat: {fileID: 2100000, guid: 73fceada90b5cb943a4aae6f2d79793b, type: 2}
+  blueMat: {fileID: 2100000, guid: 30190c569134f3d4893b770bc7d85acf, type: 2}
+  greenMat: {fileID: 2100000, guid: d04fed1d840560447a8420322fe38efb, type: 2}
+  yellowMat: {fileID: 2100000, guid: b10472eb91ec27c4abd13aacf1c02676, type: 2}
 --- !u!1 &8207305465095726925
 GameObject:
   m_ObjectHideFlags: 0
