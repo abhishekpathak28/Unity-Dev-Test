@@ -18,18 +18,40 @@ public class CardHolder : MonoBehaviour
 
     private List<Card> cardsList = new();
     public int spawnIndex;
+    private CardColor previousHolderColor;
+    private bool isReleasing = false;
+    private bool isInitialized = false;
     void Start()
     {
+        if (!isInitialized)
+        {
+            
         RandomizeColor();
         SpwanCards();
+        isInitialized = true;
+        }
     }
     private void RandomizeColor()
     {
-        cardColor = (CardColor)Random.Range(0, 4); 
-        CardColor holderColor = (CardColor)Random.Range(0, 4); 
+        CardColor previousCardColor = cardColor;
+        do
+        {
+            cardColor = (CardColor)Random.Range(0, 4); 
+        } 
+        while (cardColor == previousCardColor);
+
+        CardColor newHolderColor;
+        do
+        {
+            newHolderColor = (CardColor)Random.Range(0, 4); 
+        } 
+        while (newHolderColor == previousHolderColor);
+
+        previousHolderColor = newHolderColor;
+
         if (holderMeshRenderer != null)
         {
-            holderMeshRenderer.material = GetMaterial(holderColor);
+            holderMeshRenderer.sharedMaterial = GetMaterial(newHolderColor);
         }
     }
     private void SpwanCards()
@@ -54,6 +76,8 @@ public class CardHolder : MonoBehaviour
     }
     public void ReleaseCards()
     {
+        if (isReleasing || cardsList.Count == 0) return;
+        isReleasing = false;
         StartCoroutine(ReleaseCoRO());
     }
     private IEnumerator ReleaseCoRO()
@@ -64,8 +88,11 @@ public class CardHolder : MonoBehaviour
             ConveyorController.Instance.RegisterCard(card);
             yield return new WaitForSeconds(0.15f);
             // Debug.Log("Releasing " + card.color);
+            if (GameManager.Instance != null) GameManager.Instance.PlaySFX(GameManager.Instance.cardPopSound);
         }
+
         cardsList.Clear();
+        isReleasing = false;
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ReplaceEmptyHolder(gameObject, spawnIndex);
@@ -73,16 +100,19 @@ public class CardHolder : MonoBehaviour
     }
     public void RegenrateCards()
     {
-        if(cardsList.Count == 0)
+        isInitialized = true;
+        if(cardsList.Count>0)
         {
-            SpwanCards();
+            foreach(var card in cardsList) if(card != null) Destroy(card.gameObject);
+            cardsList.Clear();
         }
+        SpwanCards();
         Sequence seq = DOTween.Sequence();
         for (int i = 0; i < cardsList.Count; i++)
         {
             Transform cardTransform = cardsList[i].transform;
             cardTransform.localScale = Vector3.zero;
-            seq.Insert(i * 0.1f, cardTransform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack));
+            seq.Insert(i * 0.04f, cardTransform.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack));
         }
     }
 

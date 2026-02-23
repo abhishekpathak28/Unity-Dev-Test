@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a89347cf5a6db7a4db03767615042d97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sparkle: {fileID: 0}
+  sparkle: {fileID: 4033412786151888120, guid: 49057b33ea71fbb4da4e8f02a8db9f28, type: 3}
   landPos:
   - {fileID: 7537042901006695636}
   - {fileID: 957432265814672320}

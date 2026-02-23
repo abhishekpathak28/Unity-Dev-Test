@@ -4,7 +4,7 @@ using System.Collections;
 public class MatchingCard : MonoBehaviour
 {
     private CardColor cardHolderColor;
-    [SerializeField] private ParticleSystem sparkle;
+    // [SerializeField] private ParticleSystem sparkle;
     private int capacity = 6;
     [SerializeField] private Transform[] landPos;
     [SerializeField] private float YoffSet=0.02f;
@@ -22,18 +22,20 @@ public class MatchingCard : MonoBehaviour
         startScale = transform.localScale;
         SetRandomColorAndMateril();
     }
-    void OnEnable()
-    {
-        SetRandomColorAndMateril();
-    }
     private void SetRandomColorAndMateril()
     {
-        cardHolderColor = (CardColor)Random.Range(0, 4);
+        CardColor prevoiusColor = cardHolderColor;
+        do
+        {
+            cardHolderColor = (CardColor)Random.Range(0, 4);
+        }
+        while (cardHolderColor == prevoiusColor);
+
         if (crateRenderer != null)
         {
             crateRenderer.sharedMaterial = GetMaterial(cardHolderColor);
         }
-        Debug.Log($"Matching color: {cardHolderColor}");
+        // Debug.Log($"Matching color: {cardHolderColor}");
     }
     public bool CanFill(Card card)
     {
@@ -68,6 +70,10 @@ public class MatchingCard : MonoBehaviour
         seq.Join(card.transform.DORotateQuaternion(slot.rotation, flyTime).SetEase(Ease.OutQuad));
         seq.Join(card.transform.DOScale(new Vector3(originalScale.x * 0.8f, originalScale.y, originalScale.z * 1.3f), flyTime / 2).SetEase(Ease.OutSine));
         seq.Insert(flyTime / 2f, card.transform.DOScale(originalScale, flyTime / 2).SetEase(Ease.InSine));
+            if (GameManager.Instance != null && GameManager.Instance.cardPopSound != null)
+            {
+                GameManager.Instance.PlaySFX(GameManager.Instance.cardPopSound);
+            }
         seq.OnComplete(() =>
         {
             card.transform.SetParent(slot);
@@ -87,7 +93,8 @@ public class MatchingCard : MonoBehaviour
 
         seq.JoinCallback(() =>
         {
-            if (sparkle) sparkle.Play();
+            // if (sparkle) sparkle.Play();
+            if (GameManager.Instance != null) GameManager.Instance.PlaySFX(GameManager.Instance.crateMatchSound);
         });
                 seq.AppendInterval(0.5f);
         seq.Append(transform.DOScale(0f, 0.25f));
@@ -101,7 +108,7 @@ public class MatchingCard : MonoBehaviour
     private IEnumerator RespawnHolder()
     {
         SetRandomColorAndMateril();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
         foreach (Transform slot in landPos)
         {
             foreach (Transform childCard in slot)

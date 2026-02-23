@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using DG.Tweening;
-using System.Collections;
+using System;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -16,6 +16,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject[] activeHoldersOnBoard;
     [SerializeField] private int[] cascadeGroupIndices = new int[] {0,1,2};
     [SerializeField] private float slidingDistance = 1f,slidingTime =0.5f;
+
+    [Header("Audio")]
+    public AudioSource sfxSource;
+    public AudioClip cardPopSound;
+    public AudioClip crateMatchSound;
     private Queue<GameObject> holderPool = new Queue<GameObject>();
 
    void Awake()
@@ -62,12 +67,15 @@ public class GameManager : MonoBehaviour
     }
     public void ReplaceEmptyHolder(GameObject emptyHolder,int spwanIndex)
     {
-        emptyHolder.transform.DOMoveZ(emptyHolder.transform.position.z + slidingDistance, slidingTime).OnComplete(()=>
-        {
-            emptyHolder.SetActive(false);
-            holderPool.Enqueue(emptyHolder);
-        });
-        int groupPos = System.Array.IndexOf(cascadeGroupIndices, spwanIndex);
+        
+        Transform targetSpot = boardSpawnPoints[spwanIndex];
+        Vector3 exitPosition = targetSpot.position + (targetSpot.right * slidingDistance);
+        emptyHolder.transform.DOMove(exitPosition, slidingTime).OnComplete(() =>
+                {
+                    emptyHolder.SetActive(false);
+                    holderPool.Enqueue(emptyHolder);
+                });
+        int groupPos = Array.IndexOf(cascadeGroupIndices, spwanIndex);
 
         if (groupPos != -1)
         {
@@ -80,9 +88,9 @@ public class GameManager : MonoBehaviour
                 {
                     activeHoldersOnBoard[currentIndex] = holderToMove;
                     holderToMove.GetComponent<CardHolder>().spawnIndex = currentIndex;
-                    Transform targetSpot = boardSpawnPoints[currentIndex];
-                    holderToMove.transform.DOMove(targetSpot.position, 0.3f).SetEase(Ease.OutQuad);
-                    holderToMove.transform.DORotateQuaternion(targetSpot.rotation, 0.3f).SetEase(Ease.OutQuad);
+                    Transform stepTargetSpot = boardSpawnPoints[currentIndex];
+                    holderToMove.transform.DOMove(stepTargetSpot.position, 0.1f).SetEase(Ease.OutQuad);
+                    holderToMove.transform.DORotateQuaternion(stepTargetSpot.rotation, 0.1f).SetEase(Ease.OutQuad);
                 }
             }
             int backOfGroupIndex = cascadeGroupIndices[cascadeGroupIndices.Length - 1];
@@ -102,14 +110,15 @@ public class GameManager : MonoBehaviour
             newHolder.GetComponent<CardHolder>().spawnIndex = targetIndex;
 
             Transform targetSpot = boardSpawnPoints[targetIndex];
-            newHolder.transform.position = targetSpot.position - new Vector3(0, 0, 2f);
+            Vector3 startPos = targetSpot.position + (targetSpot.right * slidingDistance);
+            
+            newHolder.transform.position = startPos;
             newHolder.transform.rotation = targetSpot.rotation;
             newHolder.SetActive(true);
 
-            newHolder.transform.DOMove(targetSpot.position, 0.4f).SetEase(Ease.OutBack).OnComplete(() =>
-            {
-                PopCardsIntoHolder(newHolder);
-            });
+            newHolder.transform.DOMove(targetSpot.position, 0.1f).SetEase(Ease.OutBack);
+
+            PopCardsIntoHolder(newHolder);
         }
         else
         {
@@ -124,6 +133,14 @@ public class GameManager : MonoBehaviour
         {
             cardHolderScript.RegenrateCards();
             Debug.Log("New Cards spaned");
+        }
+    }
+    public void PlaySFX(AudioClip clip)
+    {
+        
+        if (sfxSource != null && clip != null)
+        {
+            sfxSource.PlayOneShot(clip);
         }
     }
 }
